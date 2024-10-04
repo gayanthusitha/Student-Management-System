@@ -14,84 +14,69 @@ const AdminDashboard = () => {
   const [currentDateTime, setCurrentDateTime] = useState('');
 
   useEffect(() => {
-    // Get current date and time
     const updateDateTime = () => {
       const now = new Date();
       setCurrentDateTime(now.toLocaleString());
     };
-    updateDateTime(); // Set initial date and time
-    const intervalId = setInterval(updateDateTime, 1000); // Update every second
+    updateDateTime();
+    const intervalId = setInterval(updateDateTime, 1000);
 
-    // Set the active component based on the current route
-    switch (location.pathname) {
-      case '/admin/student-list':
-        setActiveComponent('StudentList');
-        break;
-      case '/admin/add-student':
-        setActiveComponent('AddStudent');
-        break;
-      case '/admin/payment-list':
-        setActiveComponent('PaymentList');
-        break;
-      case '/admin/add-payment':
-        setActiveComponent('AddPayment');
-        break;
-      default:
-        setActiveComponent('StudentList'); // Default to StudentList if no route matches
-        break;
-    }
-    setIsLoading(false); // Hide loading animation
+    const timer = setTimeout(() => {
+      setActiveComponent('StudentList');
+      setIsLoading(false);
+    }, 3000);
 
     return () => {
-      clearInterval(intervalId); // Cleanup interval
+      clearTimeout(timer);
+      clearInterval(intervalId);
     };
-  }, [location.pathname]); // Re-run when the route changes
+    }, []);
 
-  const renderComponent = () => {
-    switch (activeComponent) {
-      case 'StudentList':
-        return <StudentList />;
-      case 'AddStudent':
-        return <AddStudent />;
-      case 'PaymentList':
-        return <PaymentList />;
-      case 'AddPayment':
-        return <AddPayment />;
-      default:
-        return null;
-    }
-  };
+    const renderComponent = () => {
+      switch (activeComponent) {
+        case 'StudentList':
+          return <StudentList />;
+        case 'AddStudent':
+          return <AddStudent />;
+        case 'PaymentList':
+          return <PaymentList />;
+        case 'AddPayment':
+          return <AddPayment />;
+        default:
+          return null;
+      }
+    };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user'); // Optional: Remove user data if stored
-    window.location.href = '/login';
-  };
+    const handleLogout = () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex flex-col lg:flex-row h-screen bg-gray-100">
       <Sidebar setActiveComponent={setActiveComponent} handleLogout={handleLogout} />
       <div className="flex-grow flex flex-col">
         {/* Navigation Bar */}
-        <nav className="bg-white shadow-md py-4 px-6 flex justify-between items-center">
-          <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
-            <div className="ml-4 text-gray-600">
+        <nav className="bg-white shadow-md py-4 px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center">
+          <div className="flex flex-col sm:flex-row items-center">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+            <div className="ml-0 sm:ml-4 text-gray-600">
               {/* Optional: Display username if needed */}
             </div>
           </div>
-          <div className="flex items-center">
-            <span className="mr-4 text-gray-600">{currentDateTime}</span>
+          <div className="flex flex-col sm:flex-row items-center mt-2 sm:mt-0">
+            <span className="mb-2 sm:mb-0 sm:mr-4 text-gray-600">{currentDateTime}</span>
             <button 
               onClick={handleLogout} 
-              className="flex items-center bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-500 transition duration-200"
+              className="flex items-center bg-red-600 text-white px-3 py-2 text-sm rounded-md hover:bg-red-500 transition duration-200"
             >
               <AiOutlineLogout className="mr-2" />
               Logout
             </button>
           </div>
         </nav>
-        <div className="flex-grow p-6 overflow-auto">
+        <div className="flex-grow p-4 sm:p-6 overflow-auto">
           {isLoading ? (
             <div className="flex justify-center items-center h-full">
               {/* Loading Animation */}

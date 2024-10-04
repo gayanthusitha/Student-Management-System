@@ -4,7 +4,7 @@ const PaymentList = () => {
   const [payments, setPayments] = useState([]);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [updateData, setUpdateData] = useState({});
-  
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [paymentsPerPage] = useState(5); // Change this to set how many payments to show per page
@@ -84,44 +84,30 @@ const PaymentList = () => {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold mb-4">Payment List</h2>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white shadow-md rounded-lg">
-          <thead>
-            <tr className="bg-blue-900 text-white text-sm leading-normal">
-              <th className="py-3 px-6 text-left">ID</th>
-              <th className="py-3 px-6 text-left">Reg No.</th>
-              <th className="py-3 px-6 text-left">Month</th>
-              <th className="py-3 px-6 text-left">Price</th>
-              <th className="py-3 px-6 text-left">Status</th>
-              <th className="py-3 px-6 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-700 text-sm">
-            {currentPayments.map((payment) => (
-              <tr key={payment.id} className="border-b border-gray-200 hover:bg-gray-100">
-                <td className="py-3 px-6 text-left">{payment.id}</td>
-                <td className="py-3 px-6 text-left">{payment.registration_number}</td>
-                <td className="py-3 px-6 text-left">{payment.month}</td>
-                <td className="py-3 px-6 text-left">{payment.price}</td>
-                <td className={`py-3 px-6 text-left font-semibold ${payment.status === 'Paid' ? 'bg-green-200' : 'bg-red-200'}`}>
-                  {payment.status}
-                </td>
-                <td className="py-3 px-6 text-center">
-                  <button
-                    onClick={() => handleUpdateClick(payment)}
-                    className="bg-blue-600 text-white py-1 px-3 rounded hover:bg-blue-700 transition duration-200"
-                  >
-                    Update
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {currentPayments.map((payment) => (
+          <div key={payment.id} className="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <h3 className="text-lg font-semibold mb-2">Payment ID: {payment.id}</h3>
+            <p className="text-sm text-gray-600"><strong>Reg No:</strong> {payment.registration_number}</p>
+            <p className="text-sm text-gray-600"><strong>Month:</strong> {payment.month}</p>
+            <p className="text-sm text-gray-600"><strong>Price:</strong> {payment.price}</p>
+            <p className={`text-sm font-semibold ${payment.status === 'Paid' ? 'text-green-600' : 'text-red-600'}`}>
+              <strong>Status:</strong> {payment.status}
+            </p>
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={() => handleUpdateClick(payment)}
+                className="bg-green-600 text-white py-1 px-3 rounded hover:bg-green-700 transition duration-200"
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-20">
+      <div className="flex justify-between items-center mt-6">
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage(currentPage - 1)}
