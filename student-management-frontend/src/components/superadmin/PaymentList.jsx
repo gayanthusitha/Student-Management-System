@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 
 const PaymentList = () => {
   const [payments, setPayments] = useState([]);
+  const [filteredPayments, setFilteredPayments] = useState([]);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [updateData, setUpdateData] = useState({});
-
+  
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [paymentsPerPage] = useState(5); // Change this to set how many payments to show per page
+  const [paymentsPerPage] = useState(5); 
+  const [searchTerm, setSearchTerm] = useState(""); 
 
   useEffect(() => {
     // Fetch payments when the component mounts
@@ -21,6 +23,7 @@ const PaymentList = () => {
         });
         const data = await response.json();
         setPayments(data);
+        setFilteredPayments(data); // Initialize filtered payments
       } catch (error) {
         console.error('Error fetching payments:', error);
       }
@@ -28,6 +31,25 @@ const PaymentList = () => {
 
     fetchPayments();
   }, []);
+
+  useEffect(() => {
+    // Handle searching and filtering payments
+    const delayDebounceFn = setTimeout(() => {
+      if (searchTerm) {
+        const filtered = payments.filter((payment) => {
+          return (
+            payment.registration_number.toString().includes(searchTerm) ||
+            payment.status.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        });
+        setFilteredPayments(filtered);
+      } else {
+        setFilteredPayments(payments); // Reset to original list if search term is empty
+      }
+    }, 300); // Debounce for 300ms
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, payments]);
 
   const handleUpdateClick = (payment) => {
     setSelectedPayment(payment);
@@ -64,6 +86,7 @@ const PaymentList = () => {
           payment.id === selectedPayment.id ? updateData : payment
         );
         setPayments(updatedPayments);
+        setFilteredPayments(updatedPayments); // Update filtered payments
         handleCloseModal();
       } else {
         const errorData = await response.json();
@@ -78,12 +101,24 @@ const PaymentList = () => {
   // Pagination Logic
   const indexOfLastPayment = currentPage * paymentsPerPage;
   const indexOfFirstPayment = indexOfLastPayment - paymentsPerPage;
-  const currentPayments = payments.slice(indexOfFirstPayment, indexOfLastPayment);
-  const totalPages = Math.ceil(payments.length / paymentsPerPage);
+  const currentPayments = filteredPayments.slice(indexOfFirstPayment, indexOfLastPayment);
+  const totalPages = Math.ceil(filteredPayments.length / paymentsPerPage);
 
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold mb-4">Payment List</h2>
+
+      {/* Search Bar */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by Registration Number or Status"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-green-500 rounded-md shadow-md py-2 px-3 w-full"
+        />
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {currentPayments.map((payment) => (
           <div key={payment.id} className="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">

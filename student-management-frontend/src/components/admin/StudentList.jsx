@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { format } from "date-fns"; // Install this package using npm install date-fns
+import { format } from "date-fns";
 
 const StudentList = () => {
   const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [studentsPerPage] = useState(5); // Adjust the number of students per page
+  const [studentsPerPage] = useState(5);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch students from the backend
   const fetchStudents = async () => {
@@ -22,6 +24,7 @@ const StudentList = () => {
       if (response.ok) {
         const data = await response.json();
         setStudents(data);
+        setFilteredStudents(data);
       } else {
         alert("Failed to fetch students");
       }
@@ -33,6 +36,28 @@ const StudentList = () => {
   useEffect(() => {
     fetchStudents();
   }, []);
+
+  useEffect(() => {
+    // Handle searching and filtering students
+    const delayDebounceFn = setTimeout(() => {
+      if (searchTerm) {
+        const filtered = students.filter((student) => {
+          return (
+            student.full_name
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            student.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            student.subject.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        });
+        setFilteredStudents(filtered);
+      } else {
+        setFilteredStudents(students); // Reset to original list if search term is empty
+      }
+    }, 300); // Debounce for 300ms
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, students]);
 
   const handleUpdateClick = (student) => {
     setSelectedStudent(student);
@@ -92,16 +117,27 @@ const StudentList = () => {
   // Pagination Logic
   const indexOfLastStudent = currentPage * studentsPerPage;
   const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
-  const currentStudents = students.slice(
+  const currentStudents = filteredStudents.slice(
     indexOfFirstStudent,
     indexOfLastStudent
   );
 
-  const totalPages = Math.ceil(students.length / studentsPerPage);
+  const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
 
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold mb-4">Student List</h2>
+
+      {/* Search Bar */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by name, gender, or subject"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-green-500 rounded-md shadow-md py-2 px-3 w-full"
+        />
+      </div>
 
       {/* Responsive Card Layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -110,9 +146,7 @@ const StudentList = () => {
             key={student.registration_number}
             className="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
           >
-            <h3 className="text-lg font-semibold mb-2">
-              {student.full_name}
-            </h3>
+            <h3 className="text-lg font-semibold mb-2">{student.full_name}</h3>
             <p className="text-sm text-gray-600">
               <strong>Reg No:</strong> {student.registration_number}
             </p>
