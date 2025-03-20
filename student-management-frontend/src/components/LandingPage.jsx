@@ -92,8 +92,7 @@ const LandingPage = () => {
           <span className="text-yellow-400 animate-pulse">Effortlessly</span>
         </h2>
         <p className="text-base sm:text-lg md:text-xl mb-6 max-w-2xl text-gray-200 leading-relaxed">
-          A robust platform enabling Super Admins and Admins to efficiently
-          handle student data, payments, and more.
+          A comprehensive platform designed to streamline student data administration, including enrollment, attendance, grading, and scheduling.
         </p>
         <a
           href="/login"
@@ -150,14 +149,14 @@ const LandingPage = () => {
         id="contact"
         className="bg-blue-900 text-gray-200 py-10 text-center"
       >
-        <p className="text-base">&copy; 2024 Student Management System</p>
+        <p className="text-base">&copy; 2025 Student Management System</p>
         <p className="mt-2">
           Contact us at{" "}
           <a
             href="mailto:support@sms.com"
             className="text-yellow-400 hover:underline"
           >
-            infod.gayanthusith@gmail.com
+            henry@gmail.com
           </a>
         </p>
       </footer>
