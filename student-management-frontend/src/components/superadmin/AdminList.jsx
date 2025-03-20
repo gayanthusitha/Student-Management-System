@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 
 const AdminList = () => {
   const [admins, setAdmins] = useState([]);
+  const [filteredAdmins, setFilteredAdmins] = useState([]);
   const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [adminsPerPage] = useState(5); // Adjust the number of admins per page
 
@@ -21,6 +23,7 @@ const AdminList = () => {
       if (response.ok) {
         const data = await response.json();
         setAdmins(data); // Assuming data contains an array of admins
+        setFilteredAdmins(data); // Initialize filteredAdmins
       } else {
         alert("Failed to fetch admins");
       }
@@ -32,6 +35,17 @@ const AdminList = () => {
   useEffect(() => {
     fetchAdmins();
   }, []);
+
+  useEffect(() => {
+    // Filter admins based on the search query
+    const filtered = admins.filter((admin) =>
+      [admin.full_name, admin.email, admin.role].some((field) =>
+        field.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    );
+    setFilteredAdmins(filtered);
+    setCurrentPage(1); // Reset to the first page whenever the search query changes
+  }, [searchQuery, admins]);
 
   const handleUpdateClick = (admin) => {
     setSelectedAdmin(admin);
@@ -109,13 +123,23 @@ const AdminList = () => {
   // Pagination Logic
   const indexOfLastAdmin = currentPage * adminsPerPage;
   const indexOfFirstAdmin = indexOfLastAdmin - adminsPerPage;
-  const currentAdmins = admins.slice(indexOfFirstAdmin, indexOfLastAdmin);
+  const currentAdmins = filteredAdmins.slice(indexOfFirstAdmin, indexOfLastAdmin);
 
-  const totalPages = Math.ceil(admins.length / adminsPerPage);
+  const totalPages = Math.ceil(filteredAdmins.length / adminsPerPage);
 
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold mb-4">Admin List</h2>
+
+      {/* Search Input */}
+      <input
+        type="text"
+        placeholder="Search by name, email, or role"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="border border-green-500 rounded-lg shadow-md p-2 mb-4 w-full"
+      />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {currentAdmins.map((admin) => (
           <div key={admin.id} className="bg-white shadow-lg rounded-lg p-4">
